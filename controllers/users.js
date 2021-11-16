@@ -8,11 +8,18 @@ const usersGet = async (req, res) => {
     const query = { status: true}
     const skip = limit * (page - 1);
 
-    const users = await User.find(query)
-                            .skip(Number(skip))
-                            .limit(limit)
+    // const users = await User.find(query)
+    //                         .skip(Number(skip))
+    //                         .limit(limit)
 
-    const totalUsers = await User.countDocuments(query);
+    // const totalUsers = await User.countDocuments(query);
+
+    const [ users, totalUsers ] = await Promise.all([
+                User.find(query)
+                    .skip(Number(skip))
+                    .limit(limit),
+                User.countDocuments(query)
+                        ])
 
     res.json({
         users,
@@ -23,7 +30,7 @@ const usersGet = async (req, res) => {
 const userPost = async (req, res) => {
     const { name, email, password, rol } = req.body
 
-    user = new User({ name, email, password, rol });
+    let user = new User({ name, email, password, rol });
 
     const salt = bcrypt.genSaltSync();
     user.password = bcrypt.hashSync(password, salt);
