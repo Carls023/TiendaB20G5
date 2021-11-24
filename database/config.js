@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const dbConnection = async () => {
-    await mongoose.connect('mongodb://localhost:27017/tienda')
+    await mongoose.connect(process.env.MONGOURL)
         .then(() => console.log("Instancia DB OKEY") )
         .catch(err => {
             console.log(`Error de coneccion a la DB ${err}`);

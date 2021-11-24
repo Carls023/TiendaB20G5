@@ -6,18 +6,34 @@ const {
     rolExists,
     userByIDExists
 } = require('../helpers/req-validatos');
-const { validateData } = require('../middlewars') 
+
+const { 
+    validateData,
+    validateJWT,
+    isAdmin,
+    isRol
+} = require('../middlewars') 
 
 const router = Router();
 
 const { 
         usersGet,
+        usersLogin,
         userPost,
         userPut,
         userDel
     } = require('../controllers/users');
 
-router.get('/', usersGet);
+router.get('/', [
+    validateJWT, 
+    isRol('Admin', 'Seller')
+], usersGet);
+
+router.post('/login', [
+    check('email', 'El correo no es valido').isEmail(),
+    check('password', '').not().isEmpty(),
+    validateData
+], usersLogin);
 
 router.post('/', [
     check('name', 'El nombre es requerido').not().isEmpty(),
@@ -37,6 +53,8 @@ router.put('/:id', [
 ], userPut);
 
 router.delete('/:id', [
+    validateJWT,
+    isAdmin,
     check('id', 'No es un ID valido').isMongoId(),
     check('id', 'No es un ID valido').custom(userByIDExists),
     validateData

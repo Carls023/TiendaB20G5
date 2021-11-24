@@ -1,4 +1,7 @@
 const bcrypt = require('bcryptjs');
+const { response, request } = require('express');
+const jwt = require('jsonwebtoken');
+
 const user = require('../models/user');
 
 const User = require('../models/user');
@@ -25,6 +28,41 @@ const usersGet = async (req, res) => {
         users,
         totalUsers
     })
+}
+
+const usersLogin = async (req = request , res = response) =>{
+    const { email, password } = req.body;
+
+    try{
+        const user = await User.findOne({ email })
+        if(!user){
+            return res.status(400).json({ msg: "Email o contrseña erroneas", field: "email" })
+        }
+
+        if(!user.status){
+            return res.status(400).json({ msg: "Cuenta inactiva" })
+        }
+
+        const validatePassword = bcrypt.compareSync(password, user.password);
+
+        if(!validatePassword){
+            return res.status(400).json({ msg: "Email o contrseña erroneas", field: "password"})
+        }
+        
+        const token = jwt.sign(user.toJSON(), process.env.SECRECTKEY, {
+            expiresIn: '12h'
+        })
+
+        res.json({
+            user,
+            token
+        })
+    }
+    catch(err){
+        res.status(500).json({
+            msg: "Contactese con el administrador"
+        })
+    }
 }
 
 const userPost = async (req, res) => {
@@ -69,6 +107,7 @@ const userDel = async (req, res) => {
 
 module.exports = {
     usersGet,
+    usersLogin,
     userPost,
     userPut,
     userDel

@@ -7,7 +7,6 @@ const productsGet = async (req, res) => {
     const query = { status: true}
     const skip = limit * (page - 1);
 
-
     const [ products, totalProducts ] = await Promise.all([
                                         Product.find(query)
                                                .skip(Number(skip))
