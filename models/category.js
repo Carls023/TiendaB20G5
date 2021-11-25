@@ -2,10 +2,10 @@ const { Schema, model } = require('mongoose');
 
 const CategorySchema =  Schema({
     
-    rol:{
+    name:{
         type: String,
         required: [true, 'La categoria es requerida']
     }
 });
 
-module.exports = model('Categoria', CategorySchema)
+module.exports = model('Category', CategorySchema, 'category')
